@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d2847">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Numeri relativi">
+  <meta name="description" content="NUMERI RELATIVI! – ascensore e retta dei numeri per comprendere i numeri relativi.">
+  <title>NUMERI RELATIVI!</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <button class="icon-btn" id="homeBtn" type="button" title="Home" aria-label="Home">⌂</button>
+      <div class="title-wrap">
+        <h1>NUMERI RELATIVI!</h1>
+        <div id="screenSubtitle" class="subtitle">Scegli una rappresentazione</div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="themeBtn" type="button" title="Giorno / notte" aria-label="Giorno / notte">☾</button>
+        <button class="icon-btn" id="soundBtn" type="button" title="Suoni" aria-label="Attiva o disattiva suoni">🔊</button>
+        <button class="icon-btn" id="fullscreenBtn" type="button" title="Tutto schermo" aria-label="Tutto schermo">⛶</button>
+        <button class="icon-btn" id="infoBtn" type="button" title="Informazioni" aria-label="Informazioni">i</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="homeScreen" class="screen active home-screen" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="hero-mascots" aria-hidden="true">
+            <img src="assets/solly.webp" class="mascot solly hero-solly" alt="">
+            <img src="assets/gabby.webp" class="mascot gabby hero-gabby" alt="">
+          </div>
+          <h2 id="homeTitle">Scopri i numeri relativi</h2>
+          <p>La stessa idea, vista in due modi: <strong>su e giù</strong> oppure <strong>destra e sinistra</strong>.</p>
+        </div>
+        <div class="mode-grid">
+          <button class="mode-card" data-screen="elevatorScreen" type="button">
+            <span class="mode-icon">↕</span>
+            <span class="mode-title">ASCENSORE</span>
+            <span class="mode-desc">Positivo = salgo<br>Negativo = scendo</span>
+          </button>
+          <button class="mode-card" data-screen="lineScreen" type="button">
+            <span class="mode-icon">↔</span>
+            <span class="mode-title">RETTA DEI NUMERI</span>
+            <span class="mode-desc">Positivo = destra<br>Negativo = sinistra</span>
+          </button>
+          <button class="mode-card exercise-card" data-screen="exerciseScreen" type="button">
+            <span class="mode-icon">?</span>
+            <span class="mode-title">ESERCIZI</span>
+            <span class="mode-desc">Parti da un numero e scopri dove arrivi</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="elevatorScreen" class="screen activity-screen" aria-label="Ascensore dei numeri">
+        <div class="activity-toolbar">
+          <button class="mini-btn switch-mode" data-screen="lineScreen" type="button">↔ Retta</button>
+          <div id="elevatorValue" class="value-badge zero">0</div>
+          <button class="mini-btn reset-btn" data-reset="elevator" type="button">0 Torna allo zero</button>
+        </div>
+        <div class="elevator-layout">
+          <div class="elevator-visual" id="elevatorVisual">
+            <div class="building" id="building" aria-label="Scala verticale da meno dieci a più dieci">
+              <div id="floorScale" class="floor-scale"></div>
+              <div class="shaft" aria-hidden="true"></div>
+              <div id="liftCabin" class="lift-cabin" aria-hidden="true">
+                <img src="assets/ascensore.webp" alt="">
+              </div>
+              <div id="elevatorVector" class="move-vector" aria-live="polite"></div>
+            </div>
+            <img src="assets/solly.webp" id="sollyElevator" class="mascot solly elevator-mascot" alt="Solly, mascotte della scuola">
+            <img src="assets/gabby.webp" class="mascot gabby elevator-gabby" alt="Gabby, mascotte della scuola">
+          </div>
+          <div class="big-controls" aria-label="Comandi ascensore">
+            <button id="elevatorPlus" class="move-btn plus" type="button"><span>+</span><small>SALGO</small></button>
+            <button id="elevatorMinus" class="move-btn minus" type="button"><span>−</span><small>SCENDO</small></button>
+          </div>
+        </div>
+      </section>
+
+      <section id="lineScreen" class="screen activity-screen" aria-label="Retta dei numeri">
+        <div class="activity-toolbar">
+          <button class="mini-btn switch-mode" data-screen="elevatorScreen" type="button">↕ Ascensore</button>
+          <div id="lineValue" class="value-badge zero">0</div>
+          <button class="mini-btn reset-btn" data-reset="line" type="button">0 Torna allo zero</button>
+        </div>
+        <div class="line-layout">
+          <div class="number-line-stage" id="lineStage">
+            <div id="numberLine" class="number-line"></div>
+            <div id="lineVector" class="line-vector" aria-live="polite"></div>
+            <img src="assets/gabby.webp" id="gabbyWalker" class="gabby-walker" alt="Gabby sulla retta dei numeri">
+          </div>
+          <div class="big-controls horizontal-controls" aria-label="Comandi retta dei numeri">
+            <button id="lineMinus" class="move-btn minus horizontal" type="button"><span>−</span><small>← SINISTRA</small></button>
+            <button id="linePlus" class="move-btn plus horizontal" type="button"><span>+</span><small>DESTRA →</small></button>
+          </div>
+        </div>
+      </section>
+
+      <section id="exerciseScreen" class="screen exercise-screen" aria-label="Esercizi sui numeri relativi">
+        <div class="exercise-panel">
+          <div class="exercise-heading">
+            <img src="assets/solly.webp" class="mascot exercise-solly" alt="Solly">
+            <div>
+              <h2>ESERCIZI</h2>
+              <p id="exercisePrompt">Premi “Nuovo esercizio”.</p>
+            </div>
+          </div>
+          <div class="equation" aria-live="polite">
+            <span id="exStart">0</span>
+            <span id="exOp">+</span>
+            <span id="exMove">0</span>
+            <span>=</span>
+            <span id="exAnswer">?</span>
+          </div>
+          <div class="exercise-answer-row">
+            <button id="answerMinus" class="answer-step" type="button">−</button>
+            <div id="answerValue" class="answer-display">0</div>
+            <button id="answerPlus" class="answer-step" type="button">+</button>
+          </div>
+          <div class="exercise-actions">
+            <button id="newExercise" class="primary-btn" type="button">Nuovo esercizio</button>
+            <button id="checkExercise" class="primary-btn accent" type="button">Controlla</button>
+            <button id="showExercise" class="secondary-btn" type="button">Mostra sulla retta</button>
+          </div>
+          <div id="exerciseFeedback" class="feedback" role="status"></div>
+          <div id="exerciseMiniLine" class="exercise-mini-line"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="infoDialog" class="info-dialog">
+      <form method="dialog">
+        <button class="dialog-close" aria-label="Chiudi">×</button>
+        <h2>NUMERI RELATIVI!</h2>
+        <p><strong>Ascensore:</strong> salire rappresenta uno spostamento positivo, scendere uno spostamento negativo.</p>
+        <p><strong>Retta dei numeri:</strong> andare a destra rappresenta uno spostamento positivo, andare a sinistra uno spostamento negativo.</p>
+        <p>Usa <strong>+</strong> e <strong>−</strong> oppure, su computer e LIM, i tasti freccia. Il pulsante <strong>0</strong> riporta sempre all’origine.</p>
+        <p class="credits"><strong>Ideazione, progettazione didattica e programmazione originale in Scratch:</strong><br>Prof. Flavio Naretti<br><br><strong>Conversione e sviluppo della versione PWA</strong> realizzati con il supporto di ChatGPT – OpenAI.<br><small>Solly e Gabby sono le mascotte della scuola. Tutto resta nel browser.</small></p>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
