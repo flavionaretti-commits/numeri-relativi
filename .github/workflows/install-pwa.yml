@@ -3,7 +3,7 @@ name: Install PWA package
 on:
   push:
     paths:
-      - 'pwa.zip.b64'
+      - 'pwa.ready'
   workflow_dispatch:
 
 permissions:
@@ -18,16 +18,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Decode and install package
+      - name: Rebuild, decode and install package
         shell: bash
         run: |
-          if [ ! -f pwa.zip.b64 ]; then
-            echo "No package payload found; nothing to do."
+          if [ ! -f pwa.ready ]; then
+            echo "No ready marker found; nothing to do."
             exit 0
           fi
-          base64 --decode pwa.zip.b64 > /tmp/numeri-relativi.zip
+          cat pwa.parts/part-* > /tmp/pwa.zip.b64
+          base64 --decode /tmp/pwa.zip.b64 > /tmp/numeri-relativi.zip
           unzip -o /tmp/numeri-relativi.zip -d .
-          rm -f pwa.zip.b64 icons/icon-192.b64
+          rm -rf pwa.parts pwa.ready icons/icon-192.b64
 
       - name: Commit generated PWA files
         shell: bash
