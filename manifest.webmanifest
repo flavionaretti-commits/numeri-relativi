@@ -1,0 +1,21 @@
+{
+  "id": "/numeri-relativi/",
+  "name": "NUMERI RELATIVI!",
+  "short_name": "Numeri relativi",
+  "description": "Ascensore e retta dei numeri per comprendere i numeri relativi.",
+  "lang": "it",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eef6ff",
+  "theme_color": "#0d2847",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
