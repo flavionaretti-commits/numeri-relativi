@@ -2,7 +2,6 @@
   'use strict';
   const MIN=-10, MAX=10;
   let currentScreen='homeScreen', elevatorValue=0, lineValue=0, answerValue=0;
-  let lineFacing=1;
   let exStart=0, exMove=0, exTarget=0, soundOn=true, toastTimer=null, audioUnlocked=false;
 
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -17,6 +16,7 @@
   function klass(n){return n>0?'positive':n<0?'negative':'zero'}
   function clamp(v){return Math.max(MIN,Math.min(MAX,v))}
   function pct(v){return ((v-MIN)/(MAX-MIN))*90+5}
+  function miniPct(v){return 3+(pct(v)/100)*94}
   function labelBottom(v){return ((v-MIN)/(MAX-MIN))*90+5}
   function separatorBottom(v){return (((v+.5)-MIN)/(MAX-MIN))*90+5}
 
@@ -122,42 +122,31 @@
     const label=[...document.querySelectorAll('#lineStage .number-label')].find(el=>Number(el.dataset.value)===lineValue);
     if(!label) return;
     const stageRect=stage.getBoundingClientRect();
-    const walkerRect=walker.getBoundingClientRect();
     const labelRect=label.getBoundingClientRect();
-    const facingLeft=lineFacing<0;
-    const startX=walkerRect.left-stageRect.left + walkerRect.width*(facingLeft ? .18 : .82);
-    const startY=walkerRect.top-stageRect.top + walkerRect.height*.5;
-    const rawTargetX=labelRect.left-stageRect.left + labelRect.width/2;
-    const rawTargetY=labelRect.top-stageRect.top + labelRect.height/2;
-    const dx=rawTargetX-startX, dy=rawTargetY-startY;
-    const dist=Math.hypot(dx,dy)||1;
-    const gap=10;
-    const length=Math.max(10,dist-gap);
-    const angle=Math.atan2(dy,dx)*180/Math.PI;
-    pointer.style.left=`${startX}px`;
+    const x=labelRect.left-stageRect.left + labelRect.width/2;
+    walker.style.left=`${x}px`;
+    const startY=walker.offsetTop + walker.offsetHeight*.58;
+    const targetY=labelRect.top-stageRect.top - 8;
+    pointer.style.left=`${x}px`;
     pointer.style.top=`${startY}px`;
-    pointer.style.width=`${length}px`;
-    pointer.style.transform=`rotate(${angle}deg)`;
+    pointer.style.height=`${Math.max(18,targetY-startY)}px`;
     pointer.className=`gabby-pointer ${klass(lineValue)}`;
   }
 
   function updateLine(animate=true,dir=0){
     const walker=$('#gabbyWalker');
-    walker.style.left=`${pct(lineValue)}%`;
-    walker.classList.toggle('faces-left', lineFacing<0);
+    walker.classList.remove('faces-left');
     setBadge($('#lineValue'),lineValue); $('#linePlus').disabled=lineValue>=MAX;$('#lineMinus').disabled=lineValue<=MIN;
     requestAnimationFrame(updateGabbyPointer);
-    setTimeout(updateGabbyPointer, 170);
-    setTimeout(updateGabbyPointer, 340);
     if(dir){
       footstep(dir);
       const vector=$('#lineVector');vector.className=`line-vector show ${dir>0?'positive':'negative'}`;vector.textContent=dir>0?'+1 →':'−1 ←';
       setTimeout(()=>vector.classList.remove('show'),520);
     }
   }
+
   function moveLine(dir){
     const next=clamp(lineValue+dir);if(next===lineValue){showToast('Hai raggiunto il limite della retta.');return}
-    lineFacing=dir;
     lineValue=next;updateLine(true,dir);
   }
 
@@ -181,15 +170,15 @@
   }
   function showExerciseLine(){
     const box=$('#exerciseMiniLine');box.innerHTML='';box.classList.add('show');
-    const line=document.createElement('div');line.className='number-line';line.style.top='55%';line.style.left='3%';line.style.right='3%';box.appendChild(line);buildNumberLine(line);
-    const start=document.createElement('div');start.className='ex-marker start';start.style.cssText=`position:absolute;left:${pct(exStart)}%;top:6px;transform:translateX(-50%);font-weight:950;color:var(--zero)`;start.textContent=`PARTO ${signed(exStart)}`;box.appendChild(start);
-    const target=document.createElement('div');target.className='ex-marker target';target.style.cssText=`position:absolute;left:${pct(exTarget)}%;bottom:2px;transform:translateX(-50%);font-weight:950;color:${exMove>0?'var(--positive)':'var(--negative)'}`;target.textContent=`ARRIVO ${signed(exTarget)}`;box.appendChild(target);
+    const line=document.createElement('div');line.className='number-line';line.style.top='44%';line.style.left='3%';line.style.right='3%';box.appendChild(line);buildNumberLine(line);
+    const start=document.createElement('div');start.className='ex-marker start';start.style.left=`${miniPct(exStart)}%`;start.textContent=`PARTO ${signed(exStart)}`;box.appendChild(start);
+    const target=document.createElement('div');target.className=`ex-marker target ${exMove>0?'positive':'negative'}`;target.style.left=`${miniPct(exTarget)}%`;target.textContent=`ARRIVO ${signed(exTarget)}`;box.appendChild(target);
     $('#exAnswer').textContent=signed(exTarget);
   }
 
   function reset(which){
     if(which==='elevator'){elevatorValue=0;updateElevator();showToast('Ascensore riportato allo zero.')}
-    if(which==='line'){lineValue=0;lineFacing=1;updateLine();showToast('Gabby è tornata allo zero.')}
+    if(which==='line'){lineValue=0;updateLine();showToast('Gabby è tornata allo zero.')}
   }
 
   function toggleTheme(){
