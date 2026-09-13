@@ -2,6 +2,7 @@
   'use strict';
   const MIN=-10, MAX=10;
   let currentScreen='homeScreen', elevatorValue=0, lineValue=0, answerValue=0;
+  let lineFacing=1;
   let exStart=0, exMove=0, exTarget=0, soundOn=true, toastTimer=null, audioUnlocked=false;
 
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -123,7 +124,7 @@
     const stageRect=stage.getBoundingClientRect();
     const walkerRect=walker.getBoundingClientRect();
     const labelRect=label.getBoundingClientRect();
-    const facingLeft=walker.classList.contains('faces-left');
+    const facingLeft=lineFacing<0;
     const startX=walkerRect.left-stageRect.left + walkerRect.width*(facingLeft ? .18 : .82);
     const startY=walkerRect.top-stageRect.top + walkerRect.height*.5;
     const rawTargetX=labelRect.left-stageRect.left + labelRect.width/2;
@@ -143,9 +144,11 @@
   function updateLine(animate=true,dir=0){
     const walker=$('#gabbyWalker');
     walker.style.left=`${pct(lineValue)}%`;
-    walker.classList.toggle('faces-left', lineValue<0);
+    walker.classList.toggle('faces-left', lineFacing<0);
     setBadge($('#lineValue'),lineValue); $('#linePlus').disabled=lineValue>=MAX;$('#lineMinus').disabled=lineValue<=MIN;
     requestAnimationFrame(updateGabbyPointer);
+    setTimeout(updateGabbyPointer, 170);
+    setTimeout(updateGabbyPointer, 340);
     if(dir){
       footstep(dir);
       const vector=$('#lineVector');vector.className=`line-vector show ${dir>0?'positive':'negative'}`;vector.textContent=dir>0?'+1 →':'−1 ←';
@@ -154,6 +157,7 @@
   }
   function moveLine(dir){
     const next=clamp(lineValue+dir);if(next===lineValue){showToast('Hai raggiunto il limite della retta.');return}
+    lineFacing=dir;
     lineValue=next;updateLine(true,dir);
   }
 
@@ -185,7 +189,7 @@
 
   function reset(which){
     if(which==='elevator'){elevatorValue=0;updateElevator();showToast('Ascensore riportato allo zero.')}
-    if(which==='line'){lineValue=0;updateLine();showToast('Gabby è tornata allo zero.')}
+    if(which==='line'){lineValue=0;lineFacing=1;updateLine();showToast('Gabby è tornata allo zero.')}
   }
 
   function toggleTheme(){
