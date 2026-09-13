@@ -76,9 +76,11 @@
     for(let v=MIN;v<=MAX;v++){
       const marker=document.createElement('div');
       marker.className='floor-marker';
+      marker.dataset.value=v;
       marker.style.bottom=`${labelBottom(v)}%`;
       const label=document.createElement('span');
       label.className=`floor-label ${klass(v)}`;
+      label.dataset.value=v;
       label.textContent=signed(v);
       marker.appendChild(label);
       scale.appendChild(marker);
@@ -86,6 +88,7 @@
   }
   function updateElevator(animate=true,dir=0){
     $('#liftCabin').style.bottom=`${labelBottom(elevatorValue)}%`;
+    document.querySelectorAll('#floorScale .floor-marker').forEach(el=>el.classList.toggle('current', Number(el.dataset.value)===elevatorValue));
     setBadge($('#elevatorValue'),elevatorValue);
     $('#elevatorPlus').disabled=elevatorValue>=MAX; $('#elevatorMinus').disabled=elevatorValue<=MIN;
     if(dir){
