@@ -1,4 +1,4 @@
-const CACHE='numeri-relativi-v1.4.0';
+const CACHE='numeri-relativi-v1.5.0';
 const ASSETS=[
   './','./index.html','./style.css','./app.js','./manifest.webmanifest',
   './icons/icon.svg',
