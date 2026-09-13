@@ -16,7 +16,8 @@
   function klass(n){return n>0?'positive':n<0?'negative':'zero'}
   function clamp(v){return Math.max(MIN,Math.min(MAX,v))}
   function pct(v){return ((v-MIN)/(MAX-MIN))*90+5}
-  function floorBottom(v){return ((v-MIN)/(MAX-MIN))*94+3}
+  function labelBottom(v){return ((v-MIN)/(MAX-MIN))*90+5}
+  function separatorBottom(v){return (((v+.5)-MIN)/(MAX-MIN))*90+5}
 
   function showToast(msg){
     const el=$('#toast'); el.textContent=msg; el.classList.add('show');
@@ -65,14 +66,25 @@
 
   function buildElevator(){
     const scale=$('#floorScale'); scale.innerHTML='';
+    for(let v=MIN;v<MAX;v++){
+      const separator=document.createElement('div');
+      separator.className='floor-separator';
+      separator.style.bottom=`${separatorBottom(v)}%`;
+      scale.appendChild(separator);
+    }
     for(let v=MIN;v<=MAX;v++){
-      const tick=document.createElement('div'); tick.className='floor-tick'; tick.style.bottom=`${floorBottom(v)}%`;
-      const label=document.createElement('span'); label.className=`floor-label ${klass(v)}`; label.textContent=signed(v);
-      tick.appendChild(label);scale.appendChild(tick);
+      const marker=document.createElement('div');
+      marker.className='floor-marker';
+      marker.style.bottom=`${labelBottom(v)}%`;
+      const label=document.createElement('span');
+      label.className=`floor-label ${klass(v)}`;
+      label.textContent=signed(v);
+      marker.appendChild(label);
+      scale.appendChild(marker);
     }
   }
   function updateElevator(animate=true,dir=0){
-    $('#liftCabin').style.bottom=`calc(${floorBottom(elevatorValue)}% - 3.5vw)`;
+    $('#liftCabin').style.bottom=`${labelBottom(elevatorValue)}%`;
     setBadge($('#elevatorValue'),elevatorValue);
     $('#elevatorPlus').disabled=elevatorValue>=MAX; $('#elevatorMinus').disabled=elevatorValue<=MIN;
     if(dir){
@@ -90,16 +102,52 @@
     container.innerHTML='';
     for(let v=MIN;v<=MAX;v++){
       const x=pct(v);
-      const tick=document.createElement('span');tick.className='number-tick';tick.style.left=`${x}%`;
-      const lab=document.createElement('span');lab.className=`number-label ${klass(v)}`;lab.style.left=`${x}%`;lab.textContent=signed(v);
+      const tick=document.createElement('span');
+      tick.className='number-tick';
+      tick.style.left=`${x}%`;
+      tick.dataset.value=v;
+      const lab=document.createElement('span');
+      lab.className=`number-label ${klass(v)}`;
+      lab.style.left=`${x}%`;
+      lab.dataset.value=v;
+      lab.textContent=signed(v);
       container.append(tick,lab);
     }
   }
+
+  function updateGabbyPointer(){
+    const stage=$('#lineStage'), walker=$('#gabbyWalker'), pointer=$('#gabbyPointer');
+    if(!stage || !walker || !pointer) return;
+    const label=[...document.querySelectorAll('#lineStage .number-label')].find(el=>Number(el.dataset.value)===lineValue);
+    if(!label) return;
+    const stageRect=stage.getBoundingClientRect();
+    const walkerRect=walker.getBoundingClientRect();
+    const labelRect=label.getBoundingClientRect();
+    const facingLeft=walker.classList.contains('faces-left');
+    const startX=walkerRect.left-stageRect.left + walkerRect.width*(facingLeft ? .18 : .82);
+    const startY=walkerRect.top-stageRect.top + walkerRect.height*.5;
+    const rawTargetX=labelRect.left-stageRect.left + labelRect.width/2;
+    const rawTargetY=labelRect.top-stageRect.top + labelRect.height/2;
+    const dx=rawTargetX-startX, dy=rawTargetY-startY;
+    const dist=Math.hypot(dx,dy)||1;
+    const gap=10;
+    const length=Math.max(10,dist-gap);
+    const angle=Math.atan2(dy,dx)*180/Math.PI;
+    pointer.style.left=`${startX}px`;
+    pointer.style.top=`${startY}px`;
+    pointer.style.width=`${length}px`;
+    pointer.style.transform=`rotate(${angle}deg)`;
+    pointer.className=`gabby-pointer ${klass(lineValue)}`;
+  }
+
   function updateLine(animate=true,dir=0){
-    const walker=$('#gabbyWalker'); walker.style.left=`${pct(lineValue)}%`;
+    const walker=$('#gabbyWalker');
+    walker.style.left=`${pct(lineValue)}%`;
+    walker.classList.toggle('faces-left', lineValue<0);
     setBadge($('#lineValue'),lineValue); $('#linePlus').disabled=lineValue>=MAX;$('#lineMinus').disabled=lineValue<=MIN;
+    requestAnimationFrame(updateGabbyPointer);
     if(dir){
-      walker.classList.toggle('faces-left',dir<0); footstep(dir);
+      footstep(dir);
       const vector=$('#lineVector');vector.className=`line-vector show ${dir>0?'positive':'negative'}`;vector.textContent=dir>0?'+1 →':'−1 ←';
       setTimeout(()=>vector.classList.remove('show'),520);
     }
@@ -165,5 +213,6 @@
   const savedSound=localStorage.getItem('nr-sound');if(savedSound==='0')toggleSound();
   updateElevator(false);updateLine(false);
 
+  window.addEventListener('resize',()=>{updateElevator(false);updateLine(false)});
   if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 })();
